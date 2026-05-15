@@ -11,7 +11,7 @@
 ---
 
 > **⚠️ This plugin is still in BETA.**  
-> Some features may be unstable. Please test thoroughly on a staging site before using on a live store. Report any bugs to socials@dadsfam.co.za — we appreciate your help improving it!
+> Some features may be unstable. Please test thoroughly on a staging site before using on a live store. Report any bugs to support@dadsfam.co.za — we appreciate your help improving it!
 
 ### Features
 
@@ -49,7 +49,9 @@
 ### ❤️ A Note from the Developer
 This plugin is and will always remain **100% FREE** for personal and commercial use (core features).
 
-I built it for fun — a Dad from South Africa just trying to make ends meet...
+I built it for fun — a Dad from South Africa just trying to make ends meet. Yes, we know AI is advanced and there are bigger plugins out there. I do this because I love it.
+
+If you really like what I do and it helps your business, please consider purchasing a **Pro License Key**. It’s purely a donation/support that helps put food on the table and lets me keep building awesome free plugins for the WordPress community.
 
 Thank you for understanding ❤️  
 Love from South Africa 🇿🇦
@@ -66,7 +68,7 @@ Love from South Africa 🇿🇦
 ### 📢 WordPress.org Submission
 We are actively submitting all our plugins to the official [WordPress.org Plugin Directory](https://wordpress.org/plugins/).  
 
-Contact us anytime if you need help: **socials@dadsfam.co.za**
+Contact us anytime if you need help: **support@dadsfam.co.za**
 
 ---
 
