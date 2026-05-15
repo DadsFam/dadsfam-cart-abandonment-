@@ -1,5 +1,7 @@
 # DadsFam Cart Abandonment
 
+**⚠️ BETA VERSION — Expect Possible Errors**
+
 **WooCommerce Abandoned Cart Recovery with Email + Premium SMS/WhatsApp**
 
 **Version:** 1.1.0  
@@ -7,6 +9,9 @@
 **Website:** [dadsfam.co.za](https://www.dadsfam.co.za)
 
 ---
+
+> **⚠️ This plugin is still in BETA.**  
+> Some features may be unstable. Please test thoroughly on a staging site before using on a live store. Report any bugs to socials@dadsfam.co.za — we appreciate your help improving it!
 
 ### Features
 
@@ -27,10 +32,6 @@
 - Webhooks + Zapier / Make.com integration
 - Rich visual email editor
 
-### Screenshots
-
-*(Add your screenshots here later)*
-
 ### Installation
 1. Download the latest release from this repository
 2. Upload the folder to `/wp-content/plugins/dadsfam-cart-abandonment/`
@@ -48,9 +49,7 @@
 ### ❤️ A Note from the Developer
 This plugin is and will always remain **100% FREE** for personal and commercial use (core features).
 
-I built it for fun — a Dad from South Africa just trying to make ends meet. Yes, we know AI is advanced and there are bigger plugins out there. I do this because I love it.
-
-If you really like what I do and it helps your business, please consider purchasing a **Pro License Key**. It’s purely a donation/support that helps put food on the table and lets me keep building awesome free plugins for the WordPress community.
+I built it for fun — a Dad from South Africa just trying to make ends meet...
 
 Thank you for understanding ❤️  
 Love from South Africa 🇿🇦
@@ -67,24 +66,18 @@ Love from South Africa 🇿🇦
 ### 📢 WordPress.org Submission
 We are actively submitting all our plugins to the official [WordPress.org Plugin Directory](https://wordpress.org/plugins/).  
 
-If you can’t find it there yet, you can always download the latest version directly from our **[website](https://www.dadsfam.co.za)** or this GitHub repository.
-
-Please be patient with us ❤️  
 Contact us anytime if you need help: **socials@dadsfam.co.za**
-
-### Known Issues
-- None currently.
 
 ---
 
 ### Changelog
 
-**1.1.0** (Current)
+**1.1.0** (Current - BETA)
 - 🎨 Styling refresh to match DadsFam Licensing design
 - 🔐 Force Lock receiver for instant license suspension
 - 📊 New System Health card + Run Abandonment Check Now button
 - 📧 Email Preview + Send Test buttons on templates
-- ⚡ Faster license re-checking (15 min + 4-hour cron)
+- ⚡ Faster license re-checking
 - 🛠️ Many stability and UX improvements
 
 ---
