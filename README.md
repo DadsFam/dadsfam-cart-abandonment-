@@ -1,17 +1,12 @@
-# DadsFam Cart Abandonment
-
-**⚠️ BETA VERSION — Expect Possible Errors**
+# DadsFam Cart Recovery
 
 **WooCommerce Abandoned Cart Recovery with Email + Premium SMS/WhatsApp**
 
-**Version:** 1.1.0  
+**Version:** 1.3.3  
 **Author:** DadsFam  
 **Website:** [dadsfam.co.za](https://www.dadsfam.co.za)
 
 ---
-
-> **⚠️ This plugin is still in BETA.**  
-> Some features may be unstable. Please test thoroughly on a staging site before using on a live store. Report any bugs to support@dadsfam.co.za — we appreciate your help improving it!
 
 ### Features
 
@@ -34,12 +29,12 @@
 
 ### Installation
 1. Download the latest release from this repository
-2. Upload the folder to `/wp-content/plugins/dadsfam-cart-abandonment/`
-3. Activate **DadsFam Cart Abandonment** in WordPress
-4. Go to **Cart Abandonment** in the WooCommerce menu
+2. Upload the folder to `/wp-content/plugins/dadsfam-cart-recovery/`
+3. Activate **DadsFam Cart Recovery** in WordPress
+4. Go to **Cart Recovery** in the WooCommerce menu
 
 ### Quick Start
-1. Go to **Cart Abandonment → Settings** and configure sender details
+1. Go to **Cart Recovery → Settings** and configure sender details
 2. Create your first recovery template
 3. Carts will be automatically tracked
 4. Use **Run Abandonment Check Now** on the dashboard to test
@@ -70,17 +65,16 @@ We are actively submitting all our plugins to the official [WordPress.org Plugin
 
 Contact us anytime if you need help: **support@dadsfam.co.za**
 
+### Known Issues
+- None currently.
+
 ---
 
 ### Changelog
 
-**1.1.0** (Current - BETA)
-- 🎨 Styling refresh to match DadsFam Licensing design
-- 🔐 Force Lock receiver for instant license suspension
-- 📊 New System Health card + Run Abandonment Check Now button
-- 📧 Email Preview + Send Test buttons on templates
-- ⚡ Faster license re-checking
-- 🛠️ Many stability and UX improvements
+**1.3.3**
+- Plugin renamed to **DadsFam Cart Recovery**
+- Updated to latest version
 
 ---
 
