@@ -1,21 +1,21 @@
-# DadsFam Cart Abandonment — v1.1.0
+# DadsFam Cart Abandonment — v1.4.0
 
 WooCommerce abandoned cart recovery, built by DadsFam.
 
-## What's new in v1.1.0
+## What's new in v1.4.0
 
-- **Styling refresh** to match DadsFam Licensing visual language (blue gradient header, white cards with top accent, blue primary buttons).
-- **Force Lock receiver** at `/wp-json/dflm/v1/force-lock-dfca` — DadsFam License Manager can now push-suspend this site instantly. The plugin silently captures the `lock_token` from each verify response (customer never sees it).
-- **License re-check on every admin page load** (throttled to every 15 min) plus a **4-hour cron**, so suspending a key on the LM side locks the site within minutes — not hours.
-- Cache lifetime cut from 12 hours to 1 hour.
-- **Email Preview** button on every template — opens the rendered email in a modal iframe with sample cart data.
-- **Send Test Email** button — sends a `[TEST]` version of any email template to any address.
-- **Run Abandonment Check Now** button on the Dashboard — manually triggers the cron and shows before/after status counts. Use this to confirm emails fire without waiting 5 minutes.
-- **System Health** card on the dashboard — shows cron status, cutoff time, pending/abandoned counts, active template count, and warnings if anything's misconfigured.
-- **Email Style toggle** in Settings — choose between the standalone DadsFam-blue wrapper or the store's existing WooCommerce email template (so recovery emails match order confirmations).
-- **Re-Check Now** button on the License page for instant re-verification.
+- **Premium recovery channels** — SMS (Twilio) and WhatsApp (Meta Cloud API) hooks.
+- **Multi-step sequences** — unlimited email templates and multi-step follow-up sequences with advanced scheduling.
+- **Analytics dashboard** — open, click and conversion tracking for recovery campaigns.
+- **Improved License Manager integration** — refined force-lock receiver and re-check logic for faster suspension handling.
+- **Run Abandonment Check Now** improvements — more detailed before/after counts and clearer diagnostics.
+- **System Health** enhancements — shows cron status, cutoff time, pending/abandoned counts, active template count, and configuration warnings.
+- **Email Preview** and **Send Test Email** — preview rendered emails in a modal and send `[TEST]` versions to any address.
+- **Email Style toggle** — choose between the DadsFam standalone wrapper or the store's WooCommerce email template.
+- **Performance and reliability** — reduced cache lifetimes, faster cron execution, and general stability fixes.
+- **WooCommerce compatibility** — tested up to WooCommerce 9.0.
 
-## Why your test email may not have arrived in v1.0.0
+## Why your test email may not have arrived in earlier versions
 
 Three conditions must all be true for a recovery email to send:
 
@@ -23,14 +23,14 @@ Three conditions must all be true for a recovery email to send:
 2. **The cart is older than the cut-off time** (default 20 minutes). Until then it sits as `pending`.
 3. **An active template's trigger time has elapsed** since the cart was marked abandoned.
 
-The new **Run Abandonment Check Now** button on the dashboard short-circuits the 5-minute cron loop and reports exactly what changed, so you can confirm everything is wired up correctly. The **System Health** card on the dashboard surfaces warnings for the most common misconfigurations (no active templates, cron not scheduled, etc.).
+The **Run Abandonment Check Now** button on the dashboard short-circuits the 5-minute cron loop and reports exactly what changed, so you can confirm everything is wired up correctly. The **System Health** card surfaces warnings for the most common misconfigurations (no active templates, cron not scheduled, etc.).
 
 ## Free vs Premium
 
 | Feature                                | Free | Premium |
 |----------------------------------------|:----:|:-------:|
 | Cart capture & abandonment detection   |  ✅  |   ✅    |
-| 1 active email follow-up template      |  ✅  |   ✅    |
+| 1 active email follow‑up template      |  ✅  |   ✅    |
 | Email preview + send test              |  ✅  |   ✅    |
 | WooCommerce email template integration |  ✅  |   ✅    |
 | Unlimited email templates / sequences  |  ❌  |   ✅    |
@@ -50,16 +50,14 @@ The new **Run Abandonment Check Now** button on the dashboard short-circuits the
 
 The plugin POSTs to `https://www.dadsfam.co.za/wp-json/dfem-licenses/v1/verify` with the customer's key, site URL, plugin version and `product=dfca`.
 
-The LM returns:
-```json
-{
-  "valid": true,
-  "message": "License key is valid.",
-  "product": "dfca",
-  "expires": "never",
-  "lock_token": "abc123..."
-}
-```
+The LM returns (example):
+    {
+      "valid": true,
+      "message": "License key is valid.",
+      "product": "dfca",
+      "expires": "never",
+      "lock_token": "abc123..."
+    }
 
 The plugin:
 - Saves `lock_token` silently (never shown in UI)
@@ -89,29 +87,27 @@ The plugin fires `do_action( 'dfca_send_sms', $cart, $body, $template, $log_id )
 
 ## File map
 
-```
-dadsfam-cart-abandonment/
-├── dadsfam-cart-abandonment.php   bootstrap
-├── includes/
-│   ├── class-dfca-install.php     tables + default templates
-│   ├── class-dfca-license.php     LM verify + force-lock + 15-min re-check
-│   ├── class-dfca-tracker.php     cart capture + recovery link handler
-│   ├── class-dfca-templates.php   template CRUD + stats
-│   ├── class-dfca-mailer.php      WC/standalone wrap, preview, test send
-│   ├── class-dfca-cron.php        promotes pending→abandoned→lost, sends emails
-│   ├── class-dfca-reports.php     overview, daily series, recent carts
-│   └── class-dfca-rest.php        dashboard AJAX + force-lock receiver
-├── admin/
-│   ├── class-dfca-admin.php       menu + page router + POST handlers
-│   └── views/
-│       ├── dashboard.php          (now with System Health + Run Cron Now)
-│       ├── templates.php          (now with Preview + Send Test)
-│       ├── reports.php
-│       ├── integrations.php
-│       ├── settings.php           (now with WC email style toggle)
-│       └── license.php            (now with Re-Check Now + force-lock URL)
-├── assets/
-│   ├── admin.css                  matches DF Licensing visual style
-│   └── admin.js                   chart + Preview/Test/Run Cron modals
-└── README.md
-```
+    dadsfam-cart-abandonment/
+    ├── dadsfam-cart-abandonment.php   bootstrap
+    ├── includes/
+    │   ├── class-dfca-install.php     tables + default templates
+    │   ├── class-dfca-license.php     LM verify + force-lock + 15-min re-check
+    │   ├── class-dfca-tracker.php     cart capture + recovery link handler
+    │   ├── class-dfca-templates.php   template CRUD + stats
+    │   ├── class-dfca-mailer.php      WC/standalone wrap, preview, test send
+    │   ├── class-dfca-cron.php        promotes pending→abandoned→lost, sends emails
+    │   ├── class-dfca-reports.php     overview, daily series, recent carts
+    │   └── class-dfca-rest.php        dashboard AJAX + force-lock receiver
+    ├── admin/
+    │   ├── class-dfca-admin.php       menu + page router + POST handlers
+    │   └── views/
+    │       ├── dashboard.php          (now with System Health + Run Cron Now)
+    │       ├── templates.php          (now with Preview + Send Test + Sequences)
+    │       ├── reports.php
+    │       ├── integrations.php
+    │       ├── settings.php           (now with WC email style toggle)
+    │       └── license.php            (now with Re-Check Now + force-lock URL)
+    ├── assets/
+    │   ├── admin.css                  matches DF Licensing visual style
+    │   └── admin.js                   chart + Preview/Test/Run Cron modals
+    └── README.md
