@@ -1,86 +1,117 @@
-# DadsFam Cart Recovery
+# DadsFam Cart Abandonment — v1.1.0
 
-**WooCommerce Abandoned Cart Recovery with Email + Premium SMS/WhatsApp**
+WooCommerce abandoned cart recovery, built by DadsFam.
 
-**Version:** 1.3.3  
-**Author:** DadsFam  
-**Website:** [dadsfam.co.za](https://www.dadsfam.co.za)
+## What's new in v1.1.0
 
----
+- **Styling refresh** to match DadsFam Licensing visual language (blue gradient header, white cards with top accent, blue primary buttons).
+- **Force Lock receiver** at `/wp-json/dflm/v1/force-lock-dfca` — DadsFam License Manager can now push-suspend this site instantly. The plugin silently captures the `lock_token` from each verify response (customer never sees it).
+- **License re-check on every admin page load** (throttled to every 15 min) plus a **4-hour cron**, so suspending a key on the LM side locks the site within minutes — not hours.
+- Cache lifetime cut from 12 hours to 1 hour.
+- **Email Preview** button on every template — opens the rendered email in a modal iframe with sample cart data.
+- **Send Test Email** button — sends a `[TEST]` version of any email template to any address.
+- **Run Abandonment Check Now** button on the Dashboard — manually triggers the cron and shows before/after status counts. Use this to confirm emails fire without waiting 5 minutes.
+- **System Health** card on the dashboard — shows cron status, cutoff time, pending/abandoned counts, active template count, and warnings if anything's misconfigured.
+- **Email Style toggle** in Settings — choose between the standalone DadsFam-blue wrapper or the store's existing WooCommerce email template (so recovery emails match order confirmations).
+- **Re-Check Now** button on the License page for instant re-verification.
 
-### Features
+## Why your test email may not have arrived in v1.0.0
 
-#### ✅ Free Features
-- Automatic abandoned cart detection
-- Recovery email sequences
-- Email preview + Send Test
-- Beautiful email styling (standalone or match your store)
-- Run abandonment check manually
-- System health dashboard
-- Full license management with Force Lock support
+Three conditions must all be true for a recovery email to send:
 
-#### ⭐ Pro Features (License Key)
-- Unlimited email templates / sequences
-- SMS recovery (Twilio)
-- WhatsApp recovery (Meta Cloud API)
-- Open / click / conversion tracking
-- Webhooks + Zapier / Make.com integration
-- Rich visual email editor
+1. **A cart was captured.** Carts are only logged once an email address is available — either from a logged-in user, or once someone types into the email field at checkout. Adding to cart and walking away without entering an email captures nothing.
+2. **The cart is older than the cut-off time** (default 20 minutes). Until then it sits as `pending`.
+3. **An active template's trigger time has elapsed** since the cart was marked abandoned.
 
-### Installation
-1. Download the latest release from this repository
-2. Upload the folder to `/wp-content/plugins/dadsfam-cart-recovery/`
-3. Activate **DadsFam Cart Recovery** in WordPress
-4. Go to **Cart Recovery** in the WooCommerce menu
+The new **Run Abandonment Check Now** button on the dashboard short-circuits the 5-minute cron loop and reports exactly what changed, so you can confirm everything is wired up correctly. The **System Health** card on the dashboard surfaces warnings for the most common misconfigurations (no active templates, cron not scheduled, etc.).
 
-### Quick Start
-1. Go to **Cart Recovery → Settings** and configure sender details
-2. Create your first recovery template
-3. Carts will be automatically tracked
-4. Use **Run Abandonment Check Now** on the dashboard to test
+## Free vs Premium
 
----
+| Feature                                | Free | Premium |
+|----------------------------------------|:----:|:-------:|
+| Cart capture & abandonment detection   |  ✅  |   ✅    |
+| 1 active email follow-up template      |  ✅  |   ✅    |
+| Email preview + send test              |  ✅  |   ✅    |
+| WooCommerce email template integration |  ✅  |   ✅    |
+| Unlimited email templates / sequences  |  ❌  |   ✅    |
+| SMS recovery (Twilio)                  |  ❌  |   ✅    |
+| WhatsApp recovery (Meta Cloud API)     |  ❌  |   ✅    |
+| Open / click / conversion analytics    |  ❌  |   ✅    |
+| Webhooks & Zapier / Make.com           |  ❌  |   ✅    |
+| Rich visual editor with media uploads  |  ❌  |   ✅    |
 
-### ❤️ A Note from the Developer
-This plugin is and will always remain **100% FREE** for personal and commercial use (core features).
+## Installation
 
-I built it for fun — a Dad from South Africa just trying to make ends meet. Yes, we know AI is advanced and there are bigger plugins out there. I do this because I love it.
+1. Upload `dadsfam-cart-abandonment.zip` via Plugins → Add New → Upload Plugin.
+2. Activate. Go to **Cart Abandonment → Settings** to configure tracking and sender details.
+3. (Optional) Activate Premium under **Cart Abandonment → ⭐ License** with a key generated by the DadsFam License Manager.
 
-If you really like what I do and it helps your business, please consider purchasing a **Pro License Key**. It’s purely a donation/support that helps put food on the table and lets me keep building awesome free plugins for the WordPress community.
+## License enforcement architecture
 
-Thank you for understanding ❤️  
-Love from South Africa 🇿🇦
+The plugin POSTs to `https://www.dadsfam.co.za/wp-json/dfem-licenses/v1/verify` with the customer's key, site URL, plugin version and `product=dfca`.
 
-### 🌐 Connect With Us
-- **Website**: [www.dadsfam.co.za](https://www.dadsfam.co.za)
-- **Threads**: [@dadsfamshop](https://www.threads.com/@dadsfamshop)
-- **WhatsApp Community**: [Join here](https://chat.whatsapp.com/IQUhr0zoiO42Y9pXgLMQQz)
-- **Instagram**: [@dadsfamshop](https://www.instagram.com/dadsfamshop/)
-- **X / Twitter**: [@DADSFAM](https://x.com/DADSFAM)
-- **WordPress Plugins**: [Browse all plugins](https://www.dadsfam.co.za/plugins-dadsfam-co-za/)
-- **GitHub**: [DadsFam](https://github.com/DadsFam)
+The LM returns:
+```json
+{
+  "valid": true,
+  "message": "License key is valid.",
+  "product": "dfca",
+  "expires": "never",
+  "lock_token": "abc123..."
+}
+```
 
-### 📢 WordPress.org Submission
-We are actively submitting all our plugins to the official [WordPress.org Plugin Directory](https://wordpress.org/plugins/).  
+The plugin:
+- Saves `lock_token` silently (never shown in UI)
+- Caches `valid=yes` for 1 hour
+- Re-verifies on every admin page load (max once per 15 min)
+- Re-verifies every 4 hours via cron
+- Exposes `/wp-json/dflm/v1/force-lock-dfca` so the LM can ping-lock instantly with the stored token
 
-Contact us anytime if you need help: **support@dadsfam.co.za**
+So three independent mechanisms catch a suspension:
+1. **Force Lock ping** — instant, if the LM can reach the site.
+2. **15-min admin re-check** — within 15 min of any admin activity.
+3. **4-hour scheduled cron** — fallback for unattended sites.
 
-### Known Issues
-- None currently.
+If the LM is unreachable, the last-known status is trusted (so a brief network blip doesn't break the customer's site). Only an explicit `valid: false` response or a successful force-lock ping deactivates premium.
 
----
+## Selling premium
 
-### Changelog
+In **DF Licenses → Add New Key** on dadsfam.co.za, choose **🛒 DadsFam Cart Abandonment** as the product. The LM will return a `lock_token` automatically when the customer activates their key.
 
-**1.3.3**
-- Plugin renamed to **DadsFam Cart Recovery**
-- Updated to latest version
+## Merge tags
 
----
+`{customer_name}` `{customer_email}` `{cart_items}` `{cart_total}` `{recovery_url}` `{coupon_code}` `{site_name}` `{site_url}` `{unsubscribe_url}`
 
-### License
-GPLv2 or later
+## SMS / WhatsApp hooks (Premium)
 
----
+The plugin fires `do_action( 'dfca_send_sms', $cart, $body, $template, $log_id )` and `do_action( 'dfca_send_whatsapp', ... )`. Wire these to your Twilio / Meta API client. Credentials are stored under `dfca_twilio_*` and `dfca_wa_*` options.
 
-Made with ❤️ by [DadsFam](https://www.dadsfam.co.za)
+## File map
+
+```
+dadsfam-cart-abandonment/
+├── dadsfam-cart-abandonment.php   bootstrap
+├── includes/
+│   ├── class-dfca-install.php     tables + default templates
+│   ├── class-dfca-license.php     LM verify + force-lock + 15-min re-check
+│   ├── class-dfca-tracker.php     cart capture + recovery link handler
+│   ├── class-dfca-templates.php   template CRUD + stats
+│   ├── class-dfca-mailer.php      WC/standalone wrap, preview, test send
+│   ├── class-dfca-cron.php        promotes pending→abandoned→lost, sends emails
+│   ├── class-dfca-reports.php     overview, daily series, recent carts
+│   └── class-dfca-rest.php        dashboard AJAX + force-lock receiver
+├── admin/
+│   ├── class-dfca-admin.php       menu + page router + POST handlers
+│   └── views/
+│       ├── dashboard.php          (now with System Health + Run Cron Now)
+│       ├── templates.php          (now with Preview + Send Test)
+│       ├── reports.php
+│       ├── integrations.php
+│       ├── settings.php           (now with WC email style toggle)
+│       └── license.php            (now with Re-Check Now + force-lock URL)
+├── assets/
+│   ├── admin.css                  matches DF Licensing visual style
+│   └── admin.js                   chart + Preview/Test/Run Cron modals
+└── README.md
+```

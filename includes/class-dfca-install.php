@@ -6,6 +6,16 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 class DFCA_Install {
 
+    public static function maybe_add_unique_key() {
+        global $wpdb;
+        $log_tbl = $wpdb->prefix . 'dfca_email_log';
+        if ( ! $wpdb->get_results( "SHOW INDEX FROM $log_tbl WHERE Key_name = 'unique_cart_tpl'" ) ) {
+            // Clean up any existing duplicates first (keep earliest per cart+template)
+            $wpdb->query( "DELETE t1 FROM $log_tbl t1 INNER JOIN $log_tbl t2 ON t1.cart_id=t2.cart_id AND t1.template_id=t2.template_id WHERE t1.id > t2.id" );
+            $wpdb->query( "ALTER TABLE $log_tbl ADD UNIQUE KEY unique_cart_tpl (cart_id, template_id)" );
+        }
+    }
+
     public static function activate() {
         global $wpdb;
         $charset = $wpdb->get_charset_collate();
@@ -50,6 +60,7 @@ class DFCA_Install {
             clicked_at   DATETIME DEFAULT NULL,
             tracking_id  VARCHAR(64) DEFAULT '',
             PRIMARY KEY (id),
+            UNIQUE KEY unique_cart_tpl (cart_id, template_id),
             KEY cart_id (cart_id),
             KEY template_id (template_id),
             KEY tracking_id (tracking_id)

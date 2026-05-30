@@ -1,8 +1,10 @@
 <?php
 /**
  * Cron processor.
- * All datetime comparisons use WordPress local time to match how dates are stored
- * (current_time('mysql') stores local time, not UTC).
+ * - Transient lock prevents concurrent runs (multiple simultaneous page loads
+ *   can each trigger wp-cron; without a lock they all send duplicate emails).
+ * - Database unique key on email_log (cart_id, template_id) is a second safety
+ *   net: even if the lock fails, only one INSERT can win at the DB level.
  */
 if ( ! defined( 'ABSPATH' ) ) exit;
 
@@ -17,17 +19,27 @@ class DFCA_Cron {
     }
 
     public function run() {
+        // ── Cron lock ──────────────────────────────────────────────────────
+        // Prevents two simultaneous PHP processes both running the cron.
+        // 90-second TTL: if the process dies the lock auto-expires.
+        if ( get_transient( 'dfca_cron_lock' ) ) return;
+        set_transient( 'dfca_cron_lock', 1, 90 );
+
+        try {
+            $this->process();
+        } finally {
+            delete_transient( 'dfca_cron_lock' );
+        }
+    }
+
+    private function process() {
         global $wpdb;
         $carts_tbl = $wpdb->prefix . 'dfca_carts';
         $log_tbl   = $wpdb->prefix . 'dfca_email_log';
 
         $cutoff_min = (int) get_option( 'dfca_cutoff_minutes', 20 );
         $lost_days  = (int) get_option( 'dfca_lost_days', 30 );
-
-        // current_time('timestamp') = time() + WP GMT offset.
-        // Dates in the DB are stored via current_time('mysql') = local WP time.
-        // We MUST use the same local-time reference for comparisons.
-        $now_ts = current_time( 'timestamp' );
+        $now_ts     = current_time( 'timestamp' );
 
         // 1. Pending → abandoned
         $abandoned_before = date( 'Y-m-d H:i:s', $now_ts - ( $cutoff_min * 60 ) );
@@ -61,18 +73,18 @@ class DFCA_Cron {
         );
 
         foreach ( $abandoned_carts as $cart ) {
-            // Convert the stored local-time datetime to a UTC timestamp for elapsed-time math.
             $stored_dt = $cart->abandoned_at ?: $cart->updated_at;
             if ( ! $stored_dt ) continue;
-            // get_gmt_from_date converts WP local datetime → UTC datetime string.
             $base = strtotime( get_gmt_from_date( $stored_dt ) );
             if ( ! $base ) continue;
 
             foreach ( $templates as $tpl ) {
                 $delay_sec = $this->delay_seconds( $tpl );
-                // time() is always UTC — consistent with get_gmt_from_date result.
                 if ( ( time() - $base ) < $delay_sec ) continue;
 
+                // ── Deduplication check ────────────────────────────────────
+                // Note: send_template() also uses INSERT IGNORE on the unique
+                // DB key, so even a race condition here is caught at DB level.
                 $already = (int) $wpdb->get_var( $wpdb->prepare(
                     "SELECT COUNT(*) FROM $log_tbl WHERE cart_id=%d AND template_id=%d",
                     $cart->id, $tpl->id

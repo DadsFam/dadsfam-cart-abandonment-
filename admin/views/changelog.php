@@ -3,6 +3,18 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 $changelog = [
     [
+        'version' => '1.4.0',
+        'date'    => '2026-05-29',
+        'type'    => 'patch',
+        'title'   => 'Duplicate Email Prevention — Critical Fix',
+        'changes' => [
+            '🐛 FIXED: Customers (and store owners testing) were receiving 3-4 identical recovery emails from the same template. Root cause: WordPress fires wp-cron on every page load — when multiple visitors hit the site at the same second, multiple PHP processes all ran the cron simultaneously, all saw no log entry, and all sent.',
+            '✨ Transient-based cron lock: run() now sets a 90-second mutex transient before processing. If a second process arrives while the first is still running, it exits immediately. Lock is always released via try/finally.',
+            '✨ INSERT IGNORE on email_log: send_template() now uses INSERT IGNORE with a database-level UNIQUE KEY on (cart_id, template_id). Even if the transient lock is somehow bypassed, the database enforces exactly one log entry per cart+template — making duplicate sends physically impossible.',
+            '✨ Auto-migration: existing installs automatically get the UNIQUE KEY added to their dfca_email_log table on plugin load (duplicates are cleaned up first).',
+        ],
+    ],
+        [
         'version' => '1.3.3',
         'date'    => '2026-05-16',
         'type'    => 'minor',

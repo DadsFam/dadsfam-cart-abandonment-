@@ -40,13 +40,17 @@ class DFCA_Mailer {
         global $wpdb;
         $log_table = $wpdb->prefix . 'dfca_email_log';
         $tracking  = wp_generate_password( 32, false, false );
-        $wpdb->insert( $log_table, [
-            'cart_id'     => $cart->id,
-            'template_id' => $template->id,
-            'channel'     => $template->channel,
-            'sent_at'     => current_time( 'mysql' ),
-            'tracking_id' => $tracking,
-        ]);
+
+        // INSERT IGNORE: if a unique key (cart_id, template_id) already exists,
+        // the insert is silently skipped and we bail — preventing duplicate sends
+        // even when two cron processes run simultaneously (race condition safety net).
+        $inserted = $wpdb->query( $wpdb->prepare(
+            "INSERT IGNORE INTO $log_table (cart_id, template_id, channel, sent_at, tracking_id)
+             VALUES (%d, %d, %s, %s, %s)",
+            $cart->id, $template->id, $template->channel, current_time( 'mysql' ), $tracking
+        ) );
+        if ( ! $inserted ) return false; // Already logged = already sent
+
         $log_id = $wpdb->insert_id;
 
         $merged = $this->render_template( $cart, $template, $tracking );

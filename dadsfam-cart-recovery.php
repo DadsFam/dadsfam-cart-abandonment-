@@ -3,7 +3,7 @@
  * Plugin Name:       DadsFam Cart Recovery
  * Plugin URI:        https://www.dadsfam.co.za
  * Description:       Track abandoned WooCommerce carts and send automated recovery emails (free), plus SMS, WhatsApp, multi-step sequences and advanced analytics (premium). Premium features unlock via a DadsFam License Manager key.
- * Version:           1.3.3
+ * Version:           1.4.0
  * Author:            DadsFam
  * Author URI:        https://www.dadsfam.co.za
  * License:           GPL v2 or later
@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /* =========================================================
    CONSTANTS
    ========================================================= */
-define( 'DFCA_VERSION',       '1.3.3' );
+define( 'DFCA_VERSION',       '1.4.0' );
 define( 'DFCA_FILE',          __FILE__ );
 define( 'DFCA_PATH',          plugin_dir_path( __FILE__ ) );
 define( 'DFCA_URL',           plugin_dir_url( __FILE__ ) );
@@ -57,6 +57,10 @@ register_deactivation_hook( __FILE__, [ 'DFCA_Install', 'deactivate' ] );
    ========================================================= */
 add_action( 'plugins_loaded', 'dfca_bootstrap' );
 function dfca_bootstrap() {
+    // Ensure DB unique key exists — prevents duplicate sends on existing installs
+    if ( class_exists( 'DFCA_Install' ) ) {
+        DFCA_Install::maybe_add_unique_key();
+    }
 
     // WooCommerce required
     if ( ! class_exists( 'WooCommerce' ) ) {
